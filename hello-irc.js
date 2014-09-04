@@ -11,6 +11,8 @@ var client = new irc.Client(bot.options.network, 'frontend-bot', {
     floodProtection: true,
     autoConnect: false
 });
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database('.sqlite');
 
 // Wrapping everything in an anonymous function for usability
 (function () {

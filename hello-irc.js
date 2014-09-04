@@ -37,8 +37,8 @@ var client = new irc.Client(bot.options.network, 'frontend-bot', {
                 bot.msgPrimaryChannel('http://lmgtfy.com/?q=' + encodeURIComponent(queryString), from);
             }
             // Can I Use
-            if (message.match(/^`caniuse /)) {
-                var queryString = message.replace(/^`caniuse /i, '');
+            if (message.match(/(^`caniuse |!caniuse |caniuse )/)) {
+                var queryString = message.replace(/^(`caniuse |!caniuse |caniuse )/i, '');
                 bot.msgPrimaryChannel('http://caniuse.com/#search=' + encodeURIComponent(queryString), from);
             }
         });

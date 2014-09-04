@@ -20,9 +20,6 @@ var client = new irc.Client(bot.options.network, 'frontend-bot', {
 (function () {
     bot.init = function () {
         // Identify with Freenode if not in dev env
-        {
-
-        }
         client.say('nickserv', 'identify ' + process.env.IRC_PASS);
         // Join our channel(s) and bind our listeners after we successfully join them
         client.join(bot.options.primaryChannel, function () {
@@ -65,7 +62,6 @@ var client = new irc.Client(bot.options.network, 'frontend-bot', {
         }
     }
 }());
-
 client.connect(5, function () {
     bot.init();
 });

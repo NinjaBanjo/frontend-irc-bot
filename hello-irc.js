@@ -1,14 +1,10 @@
 // The namespace for our bot
 var bot = {
     options: {
-        network: 'chat.freenode.net',
-        primaryChannel: '##frontend'
+        network: process.env.IRC_NETWORK || 'chat.freenode.net',
+        primaryChannel: process.env.IRC_CHANNEL || '##frontend'
     }
 };
-if (process.env.NODE_ENV === 'dev') {
-    bot.options.network = 'chat.freenode.net';
-    bot.options.primaryChannel = '#Test';
-}
 var irc = require('irc');
 var client = new irc.Client(bot.options.network, 'frontend-bot', {
     autoRejoin: true,
@@ -32,17 +28,17 @@ var client = new irc.Client(bot.options.network, 'frontend-bot', {
         // Respond to callouts in the channel
         client.addListener('message' + bot.options.primaryChannel, function (from, message) {
             // I have a question
-            if (message.match(/^i have a question/)) {
+            if (message.match(/^i have a question/i)) {
                 bot.msgPrimaryChannel('add transform: translateZ(0);', from);
             }
             // Google
             if (message.match(/^(`g |google |!g )/)) {
-                var queryString = message.replace(/^(`g |google |!g )/, '');
+                var queryString = message.replace(/^(`g |google |!g )/i, '');
                 bot.msgPrimaryChannel('http://lmgtfy.com/?q=' + encodeURIComponent(queryString), from);
             }
             // Can I Use
             if (message.match(/^`caniuse /)) {
-                var queryString = message.replace(/^`caniuse /, '');
+                var queryString = message.replace(/^`caniuse /i, '');
                 bot.msgPrimaryChannel('http://caniuse.com/#search=' + encodeURIComponent(queryString), from);
             }
         });

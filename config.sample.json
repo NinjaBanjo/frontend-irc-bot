@@ -2,7 +2,7 @@
   "servers": [
     // Each object is an individual server
     {
-      "host": "chat.freenode.nt",
+      "host": "chat.freenode.net",
       "user": "BotUser",
       "nick": "BotNick",
       "password": "BotPassword",

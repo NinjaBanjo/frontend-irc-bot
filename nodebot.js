@@ -17,6 +17,7 @@ util.inherits(NodeBot, Bot);
 NodeBot.prototype.init = function () {
   Bot.prototype.init.call(this);
   pluginLoader.prototype.init.call(this);
+  Bot.prototype.registerCommand.call(this, 'test', this.__plugins.test.prototype.test);
 };
 
 // Variable to store our config file

@@ -1,7 +1,8 @@
 var util = require('util');
 var fs = require('fs');
-var Bot = require('./lib/bot');
-var pluginLoader = require('./lib/plugin-loader');
+var libsDir = __dirname + '/lib';
+var Bot = require(libsDir + '/bot');
+var pluginLoader = require(libsDir + '/plugin-loader');
 var configFile = __dirname + '/config.json';
 
 var NodeBot = function (config) {
@@ -15,12 +16,12 @@ var NodeBot = function (config) {
 util.inherits(NodeBot, Bot);
 
 NodeBot.prototype.init = function () {
+  this.__libsDir = libsDir;
   Bot.prototype.init.call(this);
   pluginLoader.prototype.init.call(this);
 
   // Register Commands
-  Bot.prototype.registerCommand.call(this, 'test', this.__plugins.test.prototype.test);
-  Bot.prototype.registerCommand.call(this, 'google', this.__plugins.basicCommands.prototype.google);
+  //Bot.prototype.registerCommand.call(this, 'google', this.__plugins.basicCommands.prototype.google);
 };
 
 // Variable to store our config file

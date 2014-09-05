@@ -10,6 +10,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "irc": "~0.3.7",
-    "sqlite3": "~2.2.7"
+    "sqlite3": "~2.2.7",
+    "when": "~3.4.5"
   }
 }

@@ -1,16 +1,22 @@
 var util = require('util');
 var fs = require('fs');
 var Bot = require('./lib/bot');
+var pluginLoader = require('./lib/plugin-loader');
 var configFile = __dirname + '/config.json';
 
 var NodeBot = function (config) {
+  // Load the boat
   Bot.call(this, config);
+
+  // Load the plugin loader
+  pluginLoader.call(this, config.plugins);
 };
 
 util.inherits(NodeBot, Bot);
 
 NodeBot.prototype.init = function () {
   Bot.prototype.init.call(this);
+  pluginLoader.prototype.init.call(this);
 };
 
 // Variable to store our config file
@@ -22,7 +28,6 @@ fs.readFile(configFile, 'utf8', function (err, data) {
     console.log('Error: ' + err);
     return;
   }
-
   // Initialize the bot and pass it our config
   (new NodeBot(JSON.parse(data))).init();
 });

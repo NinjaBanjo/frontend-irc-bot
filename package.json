@@ -7,10 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "BSD-2-Clause",
+  "license": "GPLv3",
   "dependencies": {
-    "irc": "~0.3.7",
-    "sqlite3": "~2.2.7",
-    "when": "~3.4.5"
+    "irc": "~0.3.7"
   }
 }

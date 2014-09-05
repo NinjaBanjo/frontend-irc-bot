@@ -12,11 +12,11 @@ basicCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'caniuse', 'basicCommands', 'caniuse');
 };
 
-basicCommands.prototype.google = function (client, params, from, to, originalText, message) {
+basicCommands.google = function (client, params, from, to, originalText, message) {
   client.say(to, from + ': ' + 'http://lmgtfy.com/?q=' + encodeURIComponent(params));
 };
 
-basicCommands.prototype.caniuse = function(client, params, from, to) {
+basicCommands.caniuse = function(client, params, from, to) {
   client.say(to, from + ': ' + 'http://caniuse.com/#search=' + encodeURIComponent(params));
 };
 

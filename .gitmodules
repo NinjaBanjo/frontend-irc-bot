@@ -1,0 +1,3 @@
+[submodule "plugins/css/caniuse"]
+	path = plugins/css/caniuse
+	url = https://github.com/Fyrd/caniuse.git

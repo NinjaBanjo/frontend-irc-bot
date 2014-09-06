@@ -9,6 +9,8 @@
   "author": "",
   "license": "GPLv3",
   "dependencies": {
-    "irc": "~0.3.7"
+    "irc": "~0.3.7",
+    "request": "~2.42.0",
+    "html-entities": "~1.1.1"
   }
 }

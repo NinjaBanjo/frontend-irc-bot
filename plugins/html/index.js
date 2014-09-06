@@ -24,9 +24,14 @@ html.html = function (client, params, from, to, originalText, message) {
   // We have to pass the say as a cllabck with available function because the getResult call is synchronise
   var args = [client, params, from, to, originalText, message];
   html.getResult.call(this, params, function (client, params, from, to, originalText, message, result) {
-    console.log(result);
     urlShortener(result.url, function (shortUrl) {
-      client.say(to, from + ': ' + result.summary + shortUrl);
+      if(result.summary.length < 200) {
+        var summary = result.summary;
+      } else {
+        var summary = result.summary.substr(0, 300) + '... ';
+      }
+
+      client.say(to, from + ': ' + summary + shortUrl);
     });
   }, args);
 };
@@ -58,7 +63,7 @@ html.getResult = function (query, callback, callbackArgs) {
 };
 
 html.scrubResults = function (string) {
-  return entities.decode(string.replace(/<\/?[a-zA-Z]+>/ig, ''));
+  return entities.decode(string.replace(/<\/?[a-zA-Z]* ?([a-zA-Z="/-]+)?>/ig, ''));
 }
 
 module.exports = html;

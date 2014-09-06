@@ -1,4 +1,5 @@
-var Bot = require(__dirname + '/../../lib/bot');
+var Bot = require('../../lib/bot');
+var urlShortener = require('../../lib/url-shortener');
 
 var basicCommands = function () {
 };
@@ -13,11 +14,15 @@ basicCommands.prototype.registerCommands = function () {
 };
 
 basicCommands.google = function (client, params, from, to, originalText, message) {
-  client.say(to, from + ': ' + 'http://lmgtfy.com/?q=' + encodeURIComponent(params));
+  urlShortener('http://lmgtfy.com/?q=' + encodeURIComponent(params), function(shortUrl){
+    client.say(to, from + ': ' + shortUrl);
+  });
 };
 
 basicCommands.caniuse = function(client, params, from, to) {
-  client.say(to, from + ': ' + 'http://caniuse.com/#search=' + encodeURIComponent(params));
+  urlShortener('http://caniuse.com/#search=' + encodeURIComponent(params), function(shortUrl){
+    client.say(to, from + ': ' + shortUrl);
+  });
 };
 
 module.exports = basicCommands;

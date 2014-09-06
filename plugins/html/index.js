@@ -1,10 +1,12 @@
 var request = require('request');
 var Entities = require('html-entities').XmlEntities;
-var Bot = require(__dirname + '/../../lib/bot');
 var MDN = {
   htmlElementUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/'
 };
+var Bot = require('../../lib/bot');
+var urlShortener = require('../../lib/url-shortener');
 
+// Make a new instance of entities
 var entities = new Entities();
 
 var html = function () {
@@ -22,7 +24,10 @@ html.html = function (client, params, from, to, originalText, message) {
   // We have to pass the say as a cllabck with available function because the getResult call is synchronise
   var args = [client, params, from, to, originalText, message];
   html.getResult.call(this, params, function (client, params, from, to, originalText, message, result) {
-    client.say(to, from + ': ' + result);
+    console.log(result);
+    urlShortener(result.url, function (shortUrl) {
+      client.say(to, from + ': ' + result.summary + shortUrl);
+    });
   }, args);
 };
 
@@ -40,7 +45,7 @@ html.getResult = function (query, callback, callbackArgs) {
       if (typeof callback === "function") {
         // If we don't have a summary in the response, assume no usable result
         if (body.summary !== undefined) {
-          callback.apply(self, callbackArgs.concat(html.scrubResults(body.summary) + MDN.htmlElementUrl + query));
+          callback.apply(self, callbackArgs.concat({url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)}));
         } else {
           callback.apply(self, callbackArgs.concat('No results found'));
         }
@@ -52,7 +57,7 @@ html.getResult = function (query, callback, callbackArgs) {
   });
 };
 
-html.scrubResults = function(string) {
+html.scrubResults = function (string) {
   return entities.decode(string.replace(/<\/?[a-zA-Z]+>/ig, ''));
 }
 

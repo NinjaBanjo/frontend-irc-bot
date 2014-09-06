@@ -25,13 +25,17 @@ html.html = function (client, params, from, to, originalText, message) {
   var args = [client, params, from, to, originalText, message];
   html.getResult.call(this, params, function (client, params, from, to, originalText, message, result) {
     urlShortener(result.url, function (shortUrl) {
-      if(result.summary.length < 200) {
-        var summary = result.summary;
-      } else {
-        var summary = result.summary.substr(0, 300) + '... ';
-      }
+      if (result.summary !== undefined) {
+        if (result.summary !== undefined && result.summary.length < 200) {
+          var summary = result.summary;
+        } else {
+          var summary = result.summary.substr(0, 300) + '... ';
+        }
 
-      client.say(to, from + ': ' + summary + shortUrl);
+        client.say(to, from + ': ' + summary + shortUrl);
+      } else {
+        client.say(to, from + ': ' + result);
+      }
     });
   }, args);
 };
@@ -50,6 +54,7 @@ html.getResult = function (query, callback, callbackArgs) {
       if (typeof callback === "function") {
         // If we don't have a summary in the response, assume no usable result
         if (body.summary !== undefined) {
+          console.log(body.summary);
           callback.apply(self, callbackArgs.concat({url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)}));
         } else {
           callback.apply(self, callbackArgs.concat('No results found'));

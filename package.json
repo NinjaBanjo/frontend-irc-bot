@@ -7,8 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "BSD-2-Clause",
+  "license": "GPLv3",
   "dependencies": {
-    "irc": "~0.3.7"
+    "irc": "~0.3.7",
+    "request": "~2.42.0",
+    "html-entities": "~1.1.1",
+    "shorturl": "0.0.3"
   }
 }

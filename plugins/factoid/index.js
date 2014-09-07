@@ -43,7 +43,7 @@ factoid.set = function (client, command, params, from, to) {
         }
       });
     } else {
-      client.say(to, from + ': You are not authorized to use this command');
+      client.notice(from, 'You are not authorized to use that command');
       Bot.prototype.log('Unauthorized attempt to use !set in factoid by ' + to);
     }
   });

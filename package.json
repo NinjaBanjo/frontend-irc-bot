@@ -12,6 +12,7 @@
     "irc": "~0.3.7",
     "request": "~2.42.0",
     "html-entities": "~1.1.1",
-    "shorturl": "0.0.3"
+    "shorturl": "0.0.3",
+    "sqlite3": "~2.2.7"
   }
 }

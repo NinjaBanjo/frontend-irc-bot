@@ -20,7 +20,7 @@ html.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'html', 'html', 'html');
 };
 
-html.html = function (client, params, from, to, originalText, message) {
+html.html = function (client, command, params, from, to, originalText, message) {
   // We have to pass the say as a cllabck with available function because the getResult call is synchronise
   var args = [client, params, from, to, originalText, message];
   html.getResult.call(this, params, function (client, params, from, to, originalText, message, result) {

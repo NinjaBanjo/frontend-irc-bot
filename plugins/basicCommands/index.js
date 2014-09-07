@@ -13,13 +13,13 @@ basicCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'caniuse', 'basicCommands', 'caniuse');
 };
 
-basicCommands.google = function (client, params, from, to, originalText, message) {
+basicCommands.google = function (client, command, params, from, to, originalText, message) {
   urlShortener('http://lmgtfy.com/?q=' + encodeURIComponent(params), function(shortUrl){
     client.say(to, from + ': ' + shortUrl);
   });
 };
 
-basicCommands.caniuse = function(client, params, from, to) {
+basicCommands.caniuse = function(client, command, params, from, to) {
   urlShortener('http://caniuse.com/#search=' + encodeURIComponent(params), function(shortUrl){
     client.say(to, from + ': ' + shortUrl);
   });

@@ -68,7 +68,7 @@ html.getResult = function (query, callback, callbackArgs) {
 };
 
 html.scrubResults = function (string) {
-  return entities.decode(string.replace(/<\/?[a-z]* ?([a-z0-9="\/\-#,:. ]+)?>/ig, ''));
+  return entities.decode(string.replace(/<\/?[a-z]+([a-z &;,.!?\\="\/-]+)?>/ig, ''));
 }
 
 module.exports = html;

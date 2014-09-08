@@ -50,6 +50,7 @@ factoid.set = function (client, command, params, from, to) {
 };
 
 factoid.delete = function (client, command, params, from, to) {
+  var params = params.replace(/ /, '');
   client.whois(from, function (res) {
     if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
       db.serialize(function () {

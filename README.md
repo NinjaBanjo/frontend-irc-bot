@@ -3,8 +3,6 @@
 An IRC bot build for ##frontent on the freenode network
 
 ##Setup
---------------
-
 1. Clone the Repo
 2. install dependencies
 

@@ -54,7 +54,6 @@ html.getResult = function (query, callback, callbackArgs) {
       if (typeof callback === "function") {
         // If we don't have a summary in the response, assume no usable result
         if (body.summary !== undefined) {
-          console.log(body.summary);
           callback.apply(self, callbackArgs.concat({url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)}));
         } else {
           callback.apply(self, callbackArgs.concat('No results found'));

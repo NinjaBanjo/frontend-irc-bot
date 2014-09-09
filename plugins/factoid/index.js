@@ -6,7 +6,7 @@ var factoid = function () {
 };
 
 factoid.prototype.init = function (config, bot) {
-  factoid.__bot = bot;
+  factoid.__scope = bot;
   factoid.__config = config;
 };
 
@@ -35,7 +35,7 @@ factoid.set = function (client, command, params, from, to) {
       db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
         if (row === undefined) {
           db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
-          Bot.prototype.registerCommand.call(factoid.__bot, newCommand, 'factoid', 'factoid');
+          Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
           client.notice(from, "Command Inserted Successfully!");
         } else {
           db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
@@ -56,7 +56,7 @@ factoid.delete = function (client, command, params, from, to) {
         db.get("SELECT id FROM factoids WHERE command = ? LIMIT 1", {1: params}, function (err, row) {
           if (row !== undefined) {
             db.run("DELETE FROM factoids WHERE id = ?", {1: row.id});
-            Bot.prototype.unregisterCommand.call(factoid.__bot, params);
+            Bot.prototype.unregisterCommand.call(factoid.__scope, params);
             client.notice(from, "Command deleted successfully");
           } else {
             client.notice(from, "Command does not exist, could not delete");

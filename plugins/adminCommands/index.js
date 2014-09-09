@@ -15,7 +15,7 @@ adminCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'reload', 'adminCommands', 'reloadPlugins');
 };
 
-adminCommands.reloadPlugins = function (client, command, params, to, from) {
+adminCommands.reloadPlugins = function (client, command, params, from, to) {
   client.whois(from, function (res) {
     if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
       adminCommands.__scope.plugins = [];
@@ -28,7 +28,7 @@ adminCommands.reloadPlugins = function (client, command, params, to, from) {
   });
 };
 
-adminCommands.restart = function (client, command, params, to, from) {
+adminCommands.restart = function (client, command, params, from, to) {
   client.whois(from, function (res) {
     if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
       // Because the bot is meant to be run with forever by exiting the process forever will restart the bot for us

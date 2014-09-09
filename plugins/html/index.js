@@ -23,7 +23,7 @@ html.prototype.registerCommands = function () {
 html.html = function (client, command, params, from, to, originalText, message) {
   // We have to pass the say as a cllabck with available function because the getResult call is synchronise
   var args = [client, params, from, to, originalText, message];
-  html.getResult.call(this, params, function (client, params, from, to, originalText, message, result) {
+  html.getResult.call(this, params, function (result) {
     urlShortener(result.url, function (shortUrl) {
       if (result.summary !== undefined) {
         if (result.summary !== undefined && result.summary.length < 200) {

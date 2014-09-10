@@ -3,7 +3,7 @@ var fs = require('fs');
 var Bot = require('./lib/bot');
 var pluginLoader = require('./lib/plugin-loader');
 var auth = require('./lib/auth');
-var configFile = __dirname + '/config.json';
+var config = requiure('/config.json');
 
 var NodeBot = function (config) {
   // Load the bot
@@ -18,18 +18,8 @@ util.inherits(NodeBot, Bot);
 NodeBot.prototype.init = function () {
   Bot.prototype.init.call(this);
   pluginLoader.prototype.init.call(this);
-  auth.prototype.init.call(this);
+  auth.prototype.init.call(this).then(function(res) {
+    Bot.prototype.log(res);
+  });
 };
-
-// Variable to store our config file
-var config;
-
-// Load config from file and store it in our variable
-fs.readFile(configFile, 'utf8', function (err, data) {
-  if (err) {
-    console.log('Error: ' + err);
-    return;
-  }
-  // Initialize the bot and pass it our config
-  (new NodeBot(JSON.parse(data))).init();
-});
+(new NodeBot(JSON.parse(config))).init();

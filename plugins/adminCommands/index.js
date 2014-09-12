@@ -1,6 +1,7 @@
 var Bot = require('../../lib/bot');
 var pluginLoader = require('../../lib/plugin-loader');
 var auth = require('../../lib/auth');
+var _ = require('lodash');
 
 var adminCommands = function () {
 };
@@ -13,6 +14,88 @@ adminCommands.prototype.init = function (config, scope) {
 adminCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'restart', 'adminCommands', 'restart');
   Bot.prototype.registerCommand.call(this, 'reload', 'adminCommands', 'reloadPlugins');
+
+  // User management commands
+  Bot.prototype.registerCommand.call(this, 'adduser', 'adminCommands', 'addUser');
+  Bot.prototype.registerCommand.call(this, 'updateuser', 'adminCommands', 'updateUser');
+  Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
+  Bot.prototype.registerCommand.call(this, 'addgroup', 'adminCommands', 'addGroup');
+  Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
+};
+
+adminCommands.addUser = function (client, command, params, from, to) {
+  var args = params.split(' '),
+    optionSets = _.rest(params, 1);
+  auth.prototype.createUser(args[0], args[1])
+    .then(function (res) {
+      if (typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    });
+};
+
+adminCommands.updateUser = function (client, command, params, from, to) {
+  "use strict";
+  var args = params.split(' '),
+    optionsSet = _.rest(args, 1),
+    keys = _.groupBy(optionsSet, function (num, index) {
+      index++;
+      return index % 2;
+    });
+  keys = _.object(keys[1], keys[0]);
+  auth.prototype.updateUser(_.first(args), keys)
+    .then(function(res){
+      if (typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    }, function(res) {
+      if(typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    });
+};
+
+adminCommands.deleteUser = function (client, command, params, from, to) {
+  "use strict";
+  auth.prototype.deleteUser(params)
+    .then(function (res) {
+      if (typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    })
+};
+
+adminCommands.addGroup = function (client, command, params, from, to) {
+  "use strict";
+  var args = params.split(' ');
+  auth.prototype.createGroup(args[0], args[1])
+    .then(function (res) {
+      if (typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    });
+};
+
+adminCommands.deleteGroup = function (client, command, params, from, to) {
+  "use strict";
+  auth.prototype.deleteGroup(params)
+    .then(function (res) {
+      if (typeof res === "object") {
+        client.notice(from, res.message);
+      } else {
+        throw new Error('res is not an object');
+      }
+    });
 };
 
 adminCommands.reloadPlugins = function (client, command, params, from, to) {

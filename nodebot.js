@@ -18,17 +18,7 @@ util.inherits(NodeBot, Bot);
 NodeBot.prototype.init = function () {
   Bot.prototype.init.call(this);
   pluginLoader.prototype.init.call(this);
-  auth.prototype.init.call(this).then(function(res) {
-    auth.prototype.createUser('NinjaBanjo').then(function(err, res) {
-      "use strict";
-      Bot.prototype.log(err, res);
-      console.log(err, res);
-    });
-    auth.prototype.createGroup('owner', 1000).then(function(err, res) {
-      "use strict";
-      Bot.prototype.log(res);
-      console.log(err, res);
-    });
+  auth.prototype.init.call(this).then(function (res) {
     Bot.prototype.log(res);
   });
 };

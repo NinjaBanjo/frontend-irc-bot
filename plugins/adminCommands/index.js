@@ -16,6 +16,7 @@ adminCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'reload', 'adminCommands', 'reloadPlugins');
 
   // User management commands
+  Bot.prototype.registerCommand.call(this, 'listusers', 'adminCommands', 'listUsers');
   Bot.prototype.registerCommand.call(this, 'adduser', 'adminCommands', 'addUser');
   Bot.prototype.registerCommand.call(this, 'updateuser', 'adminCommands', 'updateUser');
   Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
@@ -23,17 +24,32 @@ adminCommands.prototype.registerCommands = function () {
   Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
 };
 
+adminCommands.listUsers = function (client, command, params, from, to) {
+  "use strict";
+  var users = auth.prototype.getAllUsers(),
+    usersList = '';
+  _.forEach(users, function (user, index) {
+    usersList += (index > 0 ? ', ' + user : user);
+  });
+  client.notice(from, usersList);
+};
+
 adminCommands.addUser = function (client, command, params, from, to) {
   var args = params.split(' '),
     optionSets = _.rest(params, 1);
-  auth.prototype.createUser(args[0], args[1])
-    .then(function (res) {
-      if (typeof res === "object") {
-        client.notice(from, res.message);
-      } else {
-        throw new Error('res is not an object');
-      }
-    });
+  auth.prototype.getAccountName(client, args[0]).then(function (res) {
+    auth.prototype.createUser(res.account, args[1])
+      .then(function (res) {
+        if (typeof res === "object") {
+          client.notice(from, res.message);
+        } else {
+          throw new Error('res is not an object');
+        }
+      });
+  }, function (res) {
+    "use strict";
+    client.notice(from, res.message);
+  });
 };
 
 adminCommands.updateUser = function (client, command, params, from, to) {
@@ -46,14 +62,14 @@ adminCommands.updateUser = function (client, command, params, from, to) {
     });
   keys = _.object(keys[1], keys[0]);
   auth.prototype.updateUser(_.first(args), keys)
-    .then(function(res){
+    .then(function (res) {
       if (typeof res === "object") {
         client.notice(from, res.message);
       } else {
         throw new Error('res is not an object');
       }
-    }, function(res) {
-      if(typeof res === "object") {
+    }, function (res) {
+      if (typeof res === "object") {
         client.notice(from, res.message);
       } else {
         throw new Error('res is not an object');

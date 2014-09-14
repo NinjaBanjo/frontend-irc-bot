@@ -21,13 +21,42 @@ adminCommands.prototype.registerCommands = function () {
     Bot.prototype.registerCommand.call(this, 'adduser', 'adminCommands', 'addUser');
     Bot.prototype.registerCommand.call(this, 'updateuser', 'adminCommands', 'updateUser');
     Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
+    Bot.prototype.registerCommand.call(this, 'listgroups', 'adminCommands', 'listGroups');
     Bot.prototype.registerCommand.call(this, 'addgroup', 'adminCommands', 'addGroup');
     Bot.prototype.registerCommand.call(this, 'updategroup', 'adminCommands', 'updateGroup');
     Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
 
     // Permissions commands
+    Bot.prototype.registerCommand.call(this, 'restrictions', 'adminCommands', 'listRestrictions');
     Bot.prototype.registerCommand.call(this, 'restrict', 'adminCommands', 'restrict');
     Bot.prototype.registerCommand.call(this, 'unrestrict', 'adminCommands', 'unrestrict');
+};
+
+adminCommands.listRestrictions = function (client, command, params, from) {
+    function sortComparison(a, b) {
+        if (a.__properties.command < b.__properties.command)
+            return -1;
+        if (a.__properties.command > b.__properties.command)
+            return 1;
+        return 0;
+    }
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                var commands = auth.prototype.getAllCommands(),
+                    commandsList = '';
+                _.forEach(commands.sort(sortComparison), function (command, index) {
+                    var separator = (index < 1 ? '' : ', ');
+                    commandsList += separator + command.getCommand() + ':' + command.getValue();
+                });
+
+                client.notice(from, commandsList);
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
 };
 
 adminCommands.restrict = function (client, command, params, from) {
@@ -75,7 +104,7 @@ adminCommands.listUsers = function (client, command, params, from) {
                     usersList = '';
                 if (users.length > 0) {
                     _.forEach(users, function (user, index) {
-                        usersList += (index > 0 ? ', ' + user : user);
+                        usersList += (index > 0 ? ', ' + user.getAccount() : user.getAccount());
                     });
                 } else {
                     usersList = 'There are currently no users in the system';
@@ -159,7 +188,31 @@ adminCommands.deleteUser = function (client, command, params, from, to) {
                         } else {
                             throw new Error('res is not an object');
                         }
+                    }, function (res) {
+                        client.notice(from, res.message);
                     });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
+};
+
+adminCommands.listGroups = function (client, command, params, from) {
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                var groups = auth.prototype.getAllGroups(),
+                    groupsList = '';
+                if (groups.length > 0) {
+                    _.forEach(groups, function (group, index) {
+                        groupsList += (index > 0 ? ', ' + group.getName() : group.getName());
+                    });
+                } else {
+                    groupsList = 'There are currently no users in the system';
+                }
+                client.notice(from, groupsList);
             } else {
                 client.notice(from, 'You\'re not authorized to use this command');
             }

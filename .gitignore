@@ -32,4 +32,4 @@ node_modules
 # Environment Variables for application runtime
 env-vars
 config.json
-factoid.sqlite
+*.sqlite

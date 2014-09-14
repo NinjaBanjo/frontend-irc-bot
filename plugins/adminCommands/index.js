@@ -23,9 +23,50 @@ adminCommands.prototype.registerCommands = function () {
     Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
     Bot.prototype.registerCommand.call(this, 'addgroup', 'adminCommands', 'addGroup');
     Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
+
+    // Permissions commands
+    Bot.prototype.registerCommand.call(this, 'restrict', 'adminCommands', 'restrict');
+    Bot.prototype.registerCommand.call(this, 'unrestrict', 'adminCommands', 'unrestrict');
 };
 
-adminCommands.listUsers = function (client, command, params, from, to) {
+adminCommands.restrict = function (client, command, params, from) {
+    var args = params.split(' ');
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                auth.prototype.restrictCommand(args[0], args[1])
+                    .then(function (res) {
+                        client.notice(from, res.message);
+                    }, function (res) {
+                        client.notice(from, res.message);
+                    });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
+};
+
+adminCommands.unrestrict = function (client, command, params, from) {
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                auth.prototype.unrestrictCommand(params)
+                    .then(function (res) {
+                        client.notice(from, res.message);
+                    }, function (res) {
+                        client.notice(from, res.message);
+                    });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
+};
+
+adminCommands.listUsers = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
@@ -47,7 +88,7 @@ adminCommands.listUsers = function (client, command, params, from, to) {
         });
 };
 
-adminCommands.addUser = function (client, command, params, from, to) {
+adminCommands.addUser = function (client, command, params, from) {
     var args = params.split(' '),
         optionSets = _.rest(params, 1);
     auth.prototype.getAccountName(client, args[0]).then(function (res) {
@@ -60,7 +101,6 @@ adminCommands.addUser = function (client, command, params, from, to) {
                 }
             });
     }, function (res) {
-        "use strict";
         client.notice(from, res.message);
     });
 };
@@ -97,7 +137,7 @@ adminCommands.deleteUser = function (client, command, params, from, to) {
             } else {
                 throw new Error('res is not an object');
             }
-        })
+        });
 };
 
 adminCommands.addGroup = function (client, command, params, from, to) {

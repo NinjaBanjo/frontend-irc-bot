@@ -31,9 +31,9 @@ factoid.set = function (client, command, params, from, to) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                var paramsSplit = params.trim().split(/ (.+)/);
-                var newCommand = paramsSplit[0];
-                var value = paramsSplit[1];
+                var paramsSplit = params.trim().split(/ (.+)/),
+                    newCommand = paramsSplit[0],
+                    value = paramsSplit[1];
                 db.serialize();
                 db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
                     if (row === undefined) {

@@ -40,6 +40,7 @@ adminCommands.listRestrictions = function (client, command, params, from) {
             return 1;
         return 0;
     }
+
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
@@ -63,13 +64,15 @@ adminCommands.restrict = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                var args = params.split(' ');
-                auth.prototype.restrictCommand(args[0], args[1])
-                    .then(function (res) {
-                        client.notice(from, res.message);
-                    }, function (res) {
-                        client.notice(from, res.message);
-                    });
+                if (typeof params === "string" && params.length > 0) {
+                    var args = params.split(' ');
+                    auth.prototype.restrictCommand(args[0], args[1])
+                        .then(function (res) {
+                            client.notice(from, res.message);
+                        }, function (res) {
+                            client.notice(from, res.message);
+                        });
+                }
             } else {
                 client.notice(from, 'You\'re not authorized to use this command');
             }

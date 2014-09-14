@@ -1,3 +1,4 @@
+"use strict";
 var Bot = require('../../lib/bot');
 var pluginLoader = require('../../lib/plugin-loader');
 var auth = require('../../lib/auth');
@@ -25,13 +26,25 @@ adminCommands.prototype.registerCommands = function () {
 };
 
 adminCommands.listUsers = function (client, command, params, from, to) {
-    "use strict";
-    var users = auth.prototype.getAllUsers(),
-        usersList = '';
-    _.forEach(users, function (user, index) {
-        usersList += (index > 0 ? ', ' + user : user);
-    });
-    client.notice(from, usersList);
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                var users = auth.prototype.getAllUsers(),
+                    usersList = '';
+                if (users.length > 0) {
+                    _.forEach(users, function (user, index) {
+                        usersList += (index > 0 ? ', ' + user : user);
+                    });
+                } else {
+                    usersList = 'There are currently no users in the system';
+                }
+                client.notice(from, usersList);
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
 };
 
 adminCommands.addUser = function (client, command, params, from, to) {
@@ -53,7 +66,6 @@ adminCommands.addUser = function (client, command, params, from, to) {
 };
 
 adminCommands.updateUser = function (client, command, params, from, to) {
-    "use strict";
     var args = params.split(' '),
         optionsSet = _.rest(args, 1),
         keys = _.groupBy(optionsSet, function (num, index) {
@@ -78,7 +90,6 @@ adminCommands.updateUser = function (client, command, params, from, to) {
 };
 
 adminCommands.deleteUser = function (client, command, params, from, to) {
-    "use strict";
     auth.prototype.deleteUser(params)
         .then(function (res) {
             if (typeof res === "object") {
@@ -90,7 +101,6 @@ adminCommands.deleteUser = function (client, command, params, from, to) {
 };
 
 adminCommands.addGroup = function (client, command, params, from, to) {
-    "use strict";
     var args = params.split(' ');
     auth.prototype.createGroup(args[0], args[1])
         .then(function (res) {
@@ -103,7 +113,6 @@ adminCommands.addGroup = function (client, command, params, from, to) {
 };
 
 adminCommands.deleteGroup = function (client, command, params, from, to) {
-    "use strict";
     auth.prototype.deleteGroup(params)
         .then(function (res) {
             if (typeof res === "object") {

@@ -22,6 +22,7 @@ adminCommands.prototype.registerCommands = function () {
     Bot.prototype.registerCommand.call(this, 'updateuser', 'adminCommands', 'updateUser');
     Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
     Bot.prototype.registerCommand.call(this, 'addgroup', 'adminCommands', 'addGroup');
+    Bot.prototype.registerCommand.call(this, 'updategroup', 'adminCommands', 'updateGroup');
     Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
 
     // Permissions commands
@@ -30,10 +31,10 @@ adminCommands.prototype.registerCommands = function () {
 };
 
 adminCommands.restrict = function (client, command, params, from) {
-    var args = params.split(' ');
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
+                var args = params.split(' ');
                 auth.prototype.restrictCommand(args[0], args[1])
                     .then(function (res) {
                         client.notice(from, res.message);
@@ -89,103 +90,199 @@ adminCommands.listUsers = function (client, command, params, from) {
 };
 
 adminCommands.addUser = function (client, command, params, from) {
-    var args = params.split(' '),
-        optionSets = _.rest(params, 1);
-    auth.prototype.getAccountName(client, args[0]).then(function (res) {
-        auth.prototype.createUser(res.account, args[1])
-            .then(function (res) {
-                if (typeof res === "object") {
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                var args = params.split(' '),
+                    optionSets = _.rest(params, 1);
+                auth.prototype.getAccountName(client, args[0]).then(function (res) {
+                    auth.prototype.createUser(res.account, args[1])
+                        .then(function (res) {
+                            if (typeof res === "object") {
+                                client.notice(from, res.message);
+                            } else {
+                                throw new Error('res is not an object');
+                            }
+                        });
+                }, function (res) {
                     client.notice(from, res.message);
-                } else {
-                    throw new Error('res is not an object');
-                }
-            });
-    }, function (res) {
-        client.notice(from, res.message);
-    });
+                });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
 };
 
 adminCommands.updateUser = function (client, command, params, from, to) {
-    var args = params.split(' '),
-        optionsSet = _.rest(args, 1),
-        keys = _.groupBy(optionsSet, function (num, index) {
-            index++;
-            return index % 2;
-        });
-    keys = _.object(keys[1], keys[0]);
-    auth.prototype.updateUser(_.first(args), keys)
+    auth.authorize(client, command, from)
         .then(function (res) {
-            if (typeof res === "object") {
-                client.notice(from, res.message);
+            if (typeof res === "object" && res.auth === true) {
+                var args = params.split(' '),
+                    optionsSet = _.rest(args, 1),
+                    keys = _.groupBy(optionsSet, function (num, index) {
+                        index++;
+                        return index % 2;
+                    });
+                keys = _.object(keys[1], keys[0]);
+                auth.prototype.updateUser(_.first(args), keys)
+                    .then(function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    }, function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    });
             } else {
-                throw new Error('res is not an object');
+                client.notice(from, 'You\'re not authorized to use this command');
             }
         }, function (res) {
-            if (typeof res === "object") {
-                client.notice(from, res.message);
-            } else {
-                throw new Error('res is not an object');
-            }
+            client.notice(from, res.message);
         });
 };
 
 adminCommands.deleteUser = function (client, command, params, from, to) {
-    auth.prototype.deleteUser(params)
+    auth.authorize(client, command, from)
         .then(function (res) {
-            if (typeof res === "object") {
-                client.notice(from, res.message);
+            if (typeof res === "object" && res.auth === true) {
+                auth.prototype.deleteUser(params)
+                    .then(function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    });
             } else {
-                throw new Error('res is not an object');
+                client.notice(from, 'You\'re not authorized to use this command');
             }
+        }, function (res) {
+            client.notice(from, res.message);
         });
 };
 
 adminCommands.addGroup = function (client, command, params, from, to) {
-    var args = params.split(' ');
-    auth.prototype.createGroup(args[0], args[1])
+    auth.authorize(client, command, from)
         .then(function (res) {
-            if (typeof res === "object") {
-                client.notice(from, res.message);
+            if (typeof res === "object" && res.auth === true) {
+                var args = params.split(' ');
+                auth.prototype.createGroup(args[0], args[1])
+                    .then(function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    });
             } else {
-                throw new Error('res is not an object');
+                client.notice(from, 'You\'re not authorized to use this command');
             }
+        }, function (res) {
+            client.notice(from, res.message);
         });
 };
 
-adminCommands.deleteGroup = function (client, command, params, from, to) {
-    auth.prototype.deleteGroup(params)
+adminCommands.updateGroup = function (client, command, params, from) {
+    auth.authorize(client, command, from)
         .then(function (res) {
-            if (typeof res === "object") {
-                client.notice(from, res.message);
+            if (typeof res === "object" && res.auth === true) {
+                var args = params.split(' '),
+                    optionsSet = _.rest(args, 1),
+                    keys = _.groupBy(optionsSet, function (num, index) {
+                        index++;
+                        return index % 2;
+                    });
+                keys = _.object(keys[1], keys[0]);
+                auth.prototype.updateGroup(_.first(args), keys)
+                    .then(function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    }, function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    });
             } else {
-                throw new Error('res is not an object');
+                client.notice(from, 'You\'re not authorized to use this command');
             }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
+};
+
+adminCommands.deleteGroup = function (client, command, params, from) {
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                auth.prototype.deleteGroup(params)
+                    .then(function (res) {
+                        if (typeof res === "object") {
+                            client.notice(from, res.message);
+                        } else {
+                            throw new Error('res is not an object');
+                        }
+                    });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
         });
 };
 
 adminCommands.reloadPlugins = function (client, command, params, from, to) {
-    client.whois(from, function (res) {
-        if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
-            adminCommands.__scope.plugins = [];
-            adminCommands.__scope.commands = {};
-            pluginLoader.prototype.init.call(adminCommands.__scope);
-        } else {
-            client.notice(from, 'You are not authorized to use that command');
-            Bot.prototype.log('Unauthorized attempt to use `reload by ' + to);
-        }
-    });
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                client.whois(from, function (res) {
+                    if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
+                        adminCommands.__scope.plugins = [];
+                        adminCommands.__scope.commands = {};
+                        pluginLoader.prototype.init.call(adminCommands.__scope);
+                    } else {
+                        client.notice(from, 'You are not authorized to use that command');
+                        Bot.prototype.log('Unauthorized attempt to use `reload by ' + to);
+                    }
+                });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
 };
 
 adminCommands.restart = function (client, command, params, from, to) {
-    client.whois(from, function (res) {
-        if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
-            // Because the bot is meant to be run with forever by exiting the process forever will restart the bot for us
-            process.exit(0);
-        } else {
-            client.notice(from, 'You are not authorized to use that command');
-            Bot.prototype.log('Unauthorized attempt to use `restart by ' + to);
-        }
-    });
+    auth.authorize(client, command, from)
+        .then(function (res) {
+            if (typeof res === "object" && res.auth === true) {
+                client.whois(from, function (res) {
+                    if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
+                        // Because the bot is meant to be run with forever by exiting the process forever will restart the bot for us
+                        process.exit(0);
+                    } else {
+                        client.notice(from, 'You are not authorized to use that command');
+                        Bot.prototype.log('Unauthorized attempt to use `restart by ' + to);
+                    }
+                });
+            } else {
+                client.notice(from, 'You\'re not authorized to use this command');
+            }
+        }, function (res) {
+            client.notice(from, res.message);
+        });
 }
 
 module.exports = adminCommands;

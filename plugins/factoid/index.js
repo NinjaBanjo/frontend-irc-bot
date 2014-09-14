@@ -31,25 +31,18 @@ factoid.set = function (client, command, params, from, to) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                client.whois(from, function (res) {
-                    if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
-                        var paramsSplit = params.trim().split(/ (.+)/);
-                        var newCommand = paramsSplit[0];
-                        var value = paramsSplit[1];
-                        db.serialize();
-                        db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
-                            if (row === undefined) {
-                                db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
-                                Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
-                                client.notice(from, "Command Inserted Successfully!");
-                            } else {
-                                db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
-                                client.notice(from, "Command Updated Successfully!");
-                            }
-                        });
+                var paramsSplit = params.trim().split(/ (.+)/);
+                var newCommand = paramsSplit[0];
+                var value = paramsSplit[1];
+                db.serialize();
+                db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
+                    if (row === undefined) {
+                        db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
+                        Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
+                        client.notice(from, "Command Inserted Successfully!");
                     } else {
-                        client.notice(from, 'You are not authorized to use that command');
-                        Bot.prototype.log('Unauthorized attempt to use !set in factoid by ' + to);
+                        db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
+                        client.notice(from, "Command Updated Successfully!");
                     }
                 });
             } else {
@@ -64,23 +57,16 @@ factoid.delete = function (client, command, params, from, to) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                client.whois(from, function (res) {
-                    if (res !== undefined && res.account !== undefined && res.account === 'NinjaBanjo' || res.account === 'jedimind') {
-                        db.serialize(function () {
-                            db.get("SELECT id FROM factoids WHERE command = ? LIMIT 1", {1: params}, function (err, row) {
-                                if (row !== undefined) {
-                                    db.run("DELETE FROM factoids WHERE id = ?", {1: row.id});
-                                    Bot.prototype.unregisterCommand.call(factoid.__scope, params);
-                                    client.notice(from, "Command deleted successfully");
-                                } else {
-                                    client.notice(from, "Command does not exist, could not delete");
-                                }
-                            });
-                        });
-                    } else {
-                        client.notice(from, "You are not authorized to use that command");
-                        Bot.prototype.log('Unauthorized attempt to use !delete in factoid by ' + to);
-                    }
+                db.serialize(function () {
+                    db.get("SELECT id FROM factoids WHERE command = ? LIMIT 1", {1: params}, function (err, row) {
+                        if (row !== undefined) {
+                            db.run("DELETE FROM factoids WHERE id = ?", {1: row.id});
+                            Bot.prototype.unregisterCommand.call(factoid.__scope, params);
+                            client.notice(from, "Command deleted successfully");
+                        } else {
+                            client.notice(from, "Command does not exist, could not delete");
+                        }
+                    });
                 });
             } else {
                 client.notice(from, 'You\'re not authorized to use this command');

@@ -1,7 +1,8 @@
 var request = require('request');
 var Entities = require('html-entities').XmlEntities;
 var MDN = {
-    htmlElementUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/'
+    //htmlElementUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/'
+    htmlElementUrl: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array'
 };
 var Bot = require('../../lib/bot');
 var urlShortener = require('../../lib/url-shortener');
@@ -23,18 +24,20 @@ html.prototype.registerCommands = function () {
 html.html = function (client, command, params, from, to, originalText, message) {
     // We have to pass the say as a cllabck with available function because the getResult call is synchronise
     var args = [client, params, from, to, originalText, message];
+
     html.getResult.call(this, params, function (result) {
         urlShortener(result.url, function (shortUrl) {
-            if (result.summary !== undefined) {
-                if (result.summary !== undefined && result.summary.length < 200) {
-                    var summary = result.summary;
-                } else {
-                    var summary = result.summary.substr(0, 300) + '... ';
-                }
+            //client.say(to, 'DEBUG: ' + result.url);
 
-                client.say(to, from + ': ' + summary + shortUrl);
+            if (result.err) {
+                client.say(to, from + ': ' + result.summary + '(' + result.statusCode + ')');
+                return;
+            }
+
+            if (result.summary && result.summary.length < 200) {
+                client.say(to, from + ': ' + result.summary);
             } else {
-                client.say(to, from + ': ' + result);
+                client.say(to, from + ': ' + result.summary.substr(0, 300) + '…');
             }
         });
     }, args);
@@ -42,26 +45,31 @@ html.html = function (client, command, params, from, to, originalText, message) 
 
 html.getResult = function (query, callback, callbackArgs) {
     var self = this;
-    var url = MDN.htmlElementUrl + encodeURIComponent(query) + '$json';
-    // Make request to MDN
+    //var url = MDN.htmlElementUrl + encodeURIComponent(query) + '$json';
+    var url = MDN.htmlElementUrl + '$json';
+
     request({
         url: url,
         json: true
     }, function (error, resp, body) {
-        // Check response code
+        var result = {
+            url: url,
+            statusCode: resp.statusCode
+        };
+
         if (!error && resp.statusCode === 200) {
-            // Make sure callback is a function
-            if (typeof callback === "function") {
-                // If we don't have a summary in the response, assume no usable result
-                if (body.summary !== undefined) {
-                    callback.apply(self, callbackArgs.concat({url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)}));
-                } else {
-                    callback.apply(self, callbackArgs.concat('No results found'));
-                }
+            if (body.summary) {
+                result.summary = html.scrubResults(body.summary);
+            } else {
+                result.summary = 'No results found';
             }
         } else {
-            // We didn't get a 200 for response code or another error happen, spit out general error message
-            callback.apply(self, callbackArgs.concat('No Results Found'));
+            result.err = error;
+            result.summary = 'Error';
+        }
+
+        if (typeof callback === "function") {
+            callback.call(self, result);
         }
     });
 };

@@ -33,7 +33,7 @@ html.html = function (client, command, params, from, to, originalText, message) 
     html.getResult.call(this, params, function (result) {
         urlShortener(result.url, function (shortUrl) {
             if (result.err) {
-                client.say(to, from + ': ' + result.summary + '(' + result.statusCode + ')');
+                client.say(to, from + ': ' + result.summary);
                 return;
             }
 
@@ -61,12 +61,9 @@ html.getResult = function (query, callback, callbackArgs) {
         };
 
         if (!error && resp.statusCode === 200) {
-            if (body.summary) {
-                result.summary = html.scrubResults(body.summary);
-            } else {
-                result.summary = 'No results found';
-            }
+            result.summary = html.scrubResults(body.summary);
         } else if (resp.statusCode === 404) {
+            result.err = 'Nothing found';
             result.summary = 'I got nothin\'.';
         } else {
             result.err = error;

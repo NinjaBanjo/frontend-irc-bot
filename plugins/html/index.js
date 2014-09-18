@@ -22,7 +22,6 @@ html.prototype.registerCommands = function () {
 
 html.html = function (client, command, params, from, to, originalText, message) {
     // We have to pass the say as a cllabck with available function because the getResult call is synchronise
-    var args = [client, params, from, to, originalText, message];
     html.getResult.call(this, params, function (result) {
         urlShortener(result.url, function (shortUrl) {
             if (result.summary !== undefined) {
@@ -37,10 +36,10 @@ html.html = function (client, command, params, from, to, originalText, message) 
                 client.say(to, from + ': ' + result);
             }
         });
-    }, args);
+    });
 };
 
-html.getResult = function (query, callback, callbackArgs) {
+html.getResult = function (query, callback) {
     var self = this;
     var url = MDN.htmlElementUrl + encodeURIComponent(query) + '$json';
     // Make request to MDN
@@ -54,14 +53,14 @@ html.getResult = function (query, callback, callbackArgs) {
             if (typeof callback === "function") {
                 // If we don't have a summary in the response, assume no usable result
                 if (body.summary !== undefined) {
-                    callback.apply(self, callbackArgs.concat({url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)}));
+                    callback.call(self, {url: MDN.htmlElementUrl + query, summary: html.scrubResults(body.summary)});
                 } else {
-                    callback.apply(self, callbackArgs.concat('No results found'));
+                    callback.call(self, 'No results found');
                 }
             }
         } else {
             // We didn't get a 200 for response code or another error happen, spit out general error message
-            callback.apply(self, callbackArgs.concat('No Results Found'));
+            callback.call(self, 'No Results Found');
         }
     });
 };

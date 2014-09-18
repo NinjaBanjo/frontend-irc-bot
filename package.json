@@ -1,7 +1,7 @@
 {
   "name": "frontend-irc-bot",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.1",
+  "description": "A frontend irc bot build ",
   "main": "nodebotc.js",
   "repository": {
     "type": "git",
@@ -30,8 +30,5 @@
     "sqlite3": "~2.2.7",
     "when": "~3.4.5",
     "lodash": "~2.4.1"
-  },
-  "devDependencies": {
-    "chai": "~1.9.1"
   }
 }

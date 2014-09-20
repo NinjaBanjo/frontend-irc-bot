@@ -21,11 +21,16 @@ html.prototype.registerCommands = function () {
 };
 
 html.html = function (client, command, params, from, to, originalText, message) {
+    // If the command is issued without parameters print out usage example.
+    if (!params) {
+        return client.say(to, from + ': ' + 'Usage: `html <elementName>. Example: `html div');
+    }
+
     // We have to pass the say as a cllabck with available function because the getResult call is synchronise
     html.getResult.call(this, params, function (result) {
         urlShortener(result.url, function (shortUrl) {
             if (result.summary !== undefined) {
-                if (result.summary !== undefined && result.summary.length < 200) {
+                if (result.summary !== undefined && result.summary.length < 300) {
                     var summary = result.summary;
                 } else {
                     var summary = result.summary.substr(0, 300) + '... ';

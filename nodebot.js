@@ -18,7 +18,7 @@ util.inherits(NodeBot, Bot);
 NodeBot.prototype.init = function () {
     Bot.prototype.init.call(this);
     pluginLoader.prototype.init.call(this);
-    auth.prototype.init.call(this).then(function (res) {
+    auth.init.call(this).then(function (res) {
         Bot.prototype.log(res);
     });
 };

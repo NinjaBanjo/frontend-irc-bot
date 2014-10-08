@@ -44,7 +44,7 @@ adminCommands.listRestrictions = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                var commands = auth.prototype.getAllCommands(),
+                var commands = auth.getAllCommands(),
                     commandsList = '';
                 _.forEach(commands.sort(sortComparison), function (command, index) {
                     var separator = (index < 1 ? '' : ', ');
@@ -66,7 +66,7 @@ adminCommands.restrict = function (client, command, params, from) {
             if (typeof res === "object" && res.auth === true) {
                 if (typeof params === "string" && params.length > 0) {
                     var args = params.split(' ');
-                    auth.prototype.restrictCommand(args[0], args[1])
+                    auth.restrictCommand(args[0], args[1])
                         .then(function (res) {
                             client.notice(from, res.message);
                         }, function (res) {
@@ -85,7 +85,7 @@ adminCommands.unrestrict = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                auth.prototype.unrestrictCommand(params)
+                auth.unrestrictCommand(params)
                     .then(function (res) {
                         client.notice(from, res.message);
                     }, function (res) {
@@ -103,7 +103,7 @@ adminCommands.listUsers = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                var users = auth.prototype.getAllUsers(),
+                var users = auth.getAllUsers(),
                     usersList = '';
                 if (users.length > 0) {
                     _.forEach(users, function (user, index) {
@@ -127,8 +127,8 @@ adminCommands.addUser = function (client, command, params, from) {
             if (typeof res === "object" && res.auth === true) {
                 var args = params.split(' '),
                     optionSets = _.rest(params, 1);
-                auth.prototype.getAccountName(client, args[0]).then(function (res) {
-                    auth.prototype.createUser(res.account, args[1])
+                auth.getAccountName(client, args[0]).then(function (res) {
+                    auth.createUser(res.account, args[1])
                         .then(function (res) {
                             if (typeof res === "object") {
                                 client.notice(from, res.message);
@@ -158,7 +158,7 @@ adminCommands.updateUser = function (client, command, params, from, to) {
                         return index % 2;
                     });
                 keys = _.object(keys[1], keys[0]);
-                auth.prototype.updateUser(_.first(args), keys)
+                auth.updateUser(_.first(args), keys)
                     .then(function (res) {
                         if (typeof res === "object") {
                             client.notice(from, res.message);
@@ -184,7 +184,7 @@ adminCommands.deleteUser = function (client, command, params, from, to) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                auth.prototype.deleteUser(params)
+                auth.deleteUser(params)
                     .then(function (res) {
                         if (typeof res === "object") {
                             client.notice(from, res.message);
@@ -206,7 +206,7 @@ adminCommands.listGroups = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                var groups = auth.prototype.getAllGroups(),
+                var groups = auth.getAllGroups(),
                     groupsList = '';
                 if (groups.length > 0) {
                     _.forEach(groups, function (group, index) {
@@ -229,7 +229,7 @@ adminCommands.addGroup = function (client, command, params, from, to) {
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
                 var args = params.split(' ');
-                auth.prototype.createGroup(args[0], args[1])
+                auth.createGroup(args[0], args[1])
                     .then(function (res) {
                         if (typeof res === "object") {
                             client.notice(from, res.message);
@@ -256,7 +256,7 @@ adminCommands.updateGroup = function (client, command, params, from) {
                         return index % 2;
                     });
                 keys = _.object(keys[1], keys[0]);
-                auth.prototype.updateGroup(_.first(args), keys)
+                auth.updateGroup(_.first(args), keys)
                     .then(function (res) {
                         if (typeof res === "object") {
                             client.notice(from, res.message);
@@ -282,7 +282,7 @@ adminCommands.deleteGroup = function (client, command, params, from) {
     auth.authorize(client, command, from)
         .then(function (res) {
             if (typeof res === "object" && res.auth === true) {
-                auth.prototype.deleteGroup(params)
+                auth.deleteGroup(params)
                     .then(function (res) {
                         if (typeof res === "object") {
                             client.notice(from, res.message);

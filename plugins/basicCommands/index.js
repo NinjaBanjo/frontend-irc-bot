@@ -11,12 +11,21 @@ basicCommands.prototype.init = function (config) {
 
 basicCommands.prototype.registerCommands = function () {
     Bot.prototype.registerCommand.call(this, 'google', 'basicCommands', 'google');
+    Bot.prototype.registerCommand.call(this, 'lmgtfy', 'basicCommands', 'lmgtfy');
+    Bot.prototype.registerCommand.call(this, 'lucky', 'basicCommands', 'lmgtfy');
     Bot.prototype.registerCommand.call(this, 'caniuse', 'basicCommands', 'caniuse');
     Bot.prototype.registerCommand.call(this, 'down', 'basicCommands', 'down');
 };
 
-// Simple LMGTFY link
+// Simple google link
 basicCommands.google = function (client, command, params, from, to, originalText, message) {
+    urlShortener('http://google.com/#q=' + encodeURIComponent(params), function (shortUrl) {
+        client.say(to, from + ': ' + shortUrl);
+    });
+};
+
+// Simple LMGTFY link
+basicCommands.lmgtfy= function (client, command, params, from, to, originalText, message) {
     urlShortener('http://lmgtfy.com/?q=' + encodeURIComponent(params), function (shortUrl) {
         client.say(to, from + ': ' + shortUrl);
     });

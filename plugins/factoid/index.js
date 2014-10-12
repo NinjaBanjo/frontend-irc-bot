@@ -28,29 +28,20 @@ factoid.prototype.registerCommands = function () {
 };
 
 factoid.set = function (client, command, params, from, to) {
-    auth.authorize(client, command, from)
-        .then(function (res) {
-            if (typeof res === "object" && res.auth === true) {
-                var paramsSplit = params.trim().split(/ (.+)/),
-                    newCommand = paramsSplit[0],
-                    value = paramsSplit[1];
-                db.serialize();
-                db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
-                    if (row === undefined) {
-                        db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
-                        Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
-                        client.notice(from, "Command Inserted Successfully!");
-                    } else {
-                        db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
-                        client.notice(from, "Command Updated Successfully!");
-                    }
-                });
-            } else {
-                client.notice(from, 'You\'re not authorized to use this command');
-            }
-        }, function (res) {
-            client.notice(from, res.message);
-        });
+    var paramsSplit = params.trim().split(/ (.+)/),
+        newCommand = paramsSplit[0],
+        value = paramsSplit[1];
+    db.serialize();
+    db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
+        if (row === undefined) {
+            db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
+            Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
+            client.notice(from, "Command Inserted Successfully!");
+        } else {
+            db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
+            client.notice(from, "Command Updated Successfully!");
+        }
+    });
 };
 
 factoid.delete = function (client, command, params, from, to) {

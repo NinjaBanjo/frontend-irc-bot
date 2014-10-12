@@ -17,10 +17,11 @@ var NodeBot = function (config) {
 util.inherits(NodeBot, Bot);
 
 NodeBot.prototype.init = function () {
-    Bot.prototype.init.call(this);
+    Bot.prototype.init.call(this, auth);
     pluginLoader.prototype.init.call(this);
     auth.init.call(this).then(function (res) {
         Bot.prototype.log(res);
     });
+
 };
 (new NodeBot(config)).init();

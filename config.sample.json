@@ -1,16 +1,12 @@
 {
-    "servers": [
-        // Each object is an individual server
-        {
+    "servers": {
+// Each object is an individual server
+        "serverKey": {
             "host": "chat.freenode.net",
             "user": "BotUser",
             "nick": "BotNick",
             "password": "BotPassword",
             "channels": ["#channel"]
         }
-    ],
-    "plugins": {
-        // plugin id: plugin name
-        "test": "test"
     }
 }

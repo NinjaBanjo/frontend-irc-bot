@@ -64,7 +64,7 @@ adminCommands.restrict = function (client, command, params, from) {
 };
 
 adminCommands.unrestrict = function (client, command, params, from) {
-    auth.unrestrictCommand(params)
+    auth.unrestrictCommand(client, params)
         .then(function (res) {
             client.notice(from, res.message);
         }, function (res) {
@@ -73,7 +73,7 @@ adminCommands.unrestrict = function (client, command, params, from) {
 };
 
 adminCommands.listUsers = function (client, command, params, from) {
-    var users = auth.getAllUsers(),
+    var users = auth.getAllUsers(client._name),
         usersList = '';
     if (users.length > 0) {
         _.forEach(users, function (user, index) {
@@ -89,7 +89,7 @@ adminCommands.addUser = function (client, command, params, from) {
     var args = params.split(' '),
         optionSets = _.rest(params, 1);
     auth.getAccountName(client, args[0]).then(function (res) {
-        auth.createUser(res.account, args[1])
+        auth.createUser(client, res.account, args[1])
             .then(function (res) {
                 if (typeof res === "object") {
                     client.notice(from, res.message);

@@ -7,27 +7,25 @@ var db = new sqlite3.Database('factoid.sqlite');
 var factoid = function () {
 };
 
-factoid.prototype.init = function (config, bot) {
-    factoid.__scope = bot;
-    factoid.__config = config;
-};
-
-factoid.prototype.registerCommands = function () {
+factoid.prototype.init = function (network, config) {
     var self = this;
-    Bot.prototype.registerCommand.call(this, 'factoids', 'factoid', 'list');
-    Bot.prototype.registerCommand.call(this, 'set', 'factoid', 'set');
-    Bot.prototype.registerCommand.call(this, 'delete', 'factoid', 'delete');
+    this._network = network;
+    this._config = config;
 
+    network.addCommand('factoids', this.list);
+    network.addCommand('set', this.set);
+    network.addCommand('delete', this.delete);
+    // Register all commands in db
     db.serialize(function () {
         db.run('CREATE TABLE IF NOT EXISTS factoids (id INTEGER PRIMARY KEY AUTOINCREMENT, command TEXT, value TEXT)');
 
         db.each("SELECT id, command FROM factoids", function (err, row) {
-            Bot.prototype.registerCommand.call(self, row.command, 'factoid', 'factoid');
+            network.addCommand(row.command, self.factoid);
         });
     });
 };
 
-factoid.set = function (client, command, params, from, to) {
+factoid.prototype.set = function (client, command, params, from, to) {
     var paramsSplit = params.trim().split(/ (.+)/),
         newCommand = paramsSplit[0],
         value = paramsSplit[1];
@@ -35,7 +33,7 @@ factoid.set = function (client, command, params, from, to) {
     db.get("SELECT id FROM factoids WHERE command = ?", {1: newCommand}, function (err, row) {
         if (row === undefined) {
             db.run("INSERT INTO factoids (command, value) VALUES (?1, ?2)", {1: newCommand, 2: value});
-            Bot.prototype.registerCommand.call(factoid.__scope, newCommand, 'factoid', 'factoid');
+            this._network.addCommand(newCommand, this.factoid);
             client.notice(from, "Command Inserted Successfully!");
         } else {
             db.run("UPDATE factoids SET value = ?1 WHERE id = ?2", {1: value, 2: row.id});
@@ -44,12 +42,12 @@ factoid.set = function (client, command, params, from, to) {
     });
 };
 
-factoid.delete = function (client, command, params, from, to) {
+factoid.prototype.delete = function (client, command, params, from, to) {
     db.serialize(function () {
         db.get("SELECT id FROM factoids WHERE command = ? LIMIT 1", {1: params}, function (err, row) {
             if (row !== undefined) {
                 db.run("DELETE FROM factoids WHERE id = ?", {1: row.id});
-                Bot.prototype.unregisterCommand.call(factoid.__scope, params);
+                // todo: implement a way to unregister commands from network object
                 client.notice(from, "Command deleted successfully");
             } else {
                 client.notice(from, "Command does not exist, could not delete");
@@ -58,7 +56,7 @@ factoid.delete = function (client, command, params, from, to) {
     });
 };
 
-factoid.list = function (client, command, params, from, to) {
+factoid.prototype.list = function (client, command, params, from, to) {
     var factoids = '',
         i = 1;
     db.serialize(function () {
@@ -81,7 +79,7 @@ factoid.list = function (client, command, params, from, to) {
     });
 };
 
-factoid.factoid = function (client, command, params, from, to) {
+factoid.prototype.factoid = function (client, command, params, from, to) {
     // Get command from db and return value to user
     db.serialize(function () {
         db.get("SELECT command,value FROM factoids WHERE command = ? LIMIT 1", {1: command}, function (err, row) {

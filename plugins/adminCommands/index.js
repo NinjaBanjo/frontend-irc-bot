@@ -5,39 +5,41 @@ var Bot = require('../../lib/bot'),
     _ = require('lodash'),
     moment = require('moment');
 
-var adminCommands = function () {
-    /*Bot.prototype.registerCommand.call(this, 'restart', 'adminCommands', 'restart');
-    Bot.prototype.registerCommand.call(this, 'reload', 'adminCommands', 'reloadPlugins');
-    Bot.prototype.registerCommand.call(this, 'uptime', 'adminCommands', 'uptime');
-
-    // User management commands
-    Bot.prototype.registerCommand.call(this, 'listusers', 'adminCommands', 'listUsers');
-    Bot.prototype.registerCommand.call(this, 'adduser', 'adminCommands', 'addUser');
-    Bot.prototype.registerCommand.call(this, 'updateuser', 'adminCommands', 'updateUser');
-    Bot.prototype.registerCommand.call(this, 'deluser', 'adminCommands', 'deleteUser');
-    Bot.prototype.registerCommand.call(this, 'listgroups', 'adminCommands', 'listGroups');
-    Bot.prototype.registerCommand.call(this, 'addgroup', 'adminCommands', 'addGroup');
-    Bot.prototype.registerCommand.call(this, 'updategroup', 'adminCommands', 'updateGroup');
-    Bot.prototype.registerCommand.call(this, 'delgroup', 'adminCommands', 'deleteGroup');
-
-    // Permissions commands
-    Bot.prototype.registerCommand.call(this, 'restrictions', 'adminCommands', 'listRestrictions');
-    Bot.prototype.registerCommand.call(this, 'restrict', 'adminCommands', 'restrict');
-    Bot.prototype.registerCommand.call(this, 'unrestrict', 'adminCommands', 'unrestrict');*/
+var adminCommands = function (network, config) {
 };
 
 adminCommands.prototype.init = function (network, config) {
+    this._self = this;
     this._network = network;
     this._cofnig = config;
+
+    network.addCommand('restart', this.restart);
+    network.addCommand('reload', this.reloadPlugins);
+    network.addCommand('uptime', this.uptime);
+
+    // User management commands
+    network.addCommand('listusers', this.listUsers);
+    network.addCommand('adduser', this.addUser);
+    network.addCommand('updateuser', this.updateUser);
+    network.addCommand('deleteuser', this.deleteUser);
+    network.addCommand('listgroups', this.listGroups);
+    network.addCommand('addgroup', this.addGroup);
+    network.addCommand('updategroup', this.updateGroup);
+    network.addCommand('deletegroup', this.deleteGroup);
+
+    // Permissions commands
+    network.addCommand('restrictions', this.listRestrictions);
+    network.addCommand('restrict', this.restrict);
+    network.addCommand('unrestrict', this.unrestrict);
 };
 
-adminCommands.prototype.uptime = function (client, command, params, from) {
+adminCommands.prototype.uptime = function (network, command, params, from) {
     var a = moment();
     var b = moment().subtract(process.uptime(), 'seconds');
-    client.notice(from, (a.diff(b, 'days') == 0 ? 'Less than a day' : a.diff(b, 'day(s)')));
+    network.getClient().notice(from, (a.diff(b, 'days') == 0 ? 'Less than a day' : a.diff(b, 'day(s)')));
 };
 
-adminCommands.prototype.listRestrictions = function (client, command, params, from) {
+adminCommands.prototype.listRestrictions = function (network, command, params, from) {
     function sortComparison(a, b) {
         if (a.__properties.command < b.__properties.command)
             return -1;
@@ -53,7 +55,7 @@ adminCommands.prototype.listRestrictions = function (client, command, params, fr
         commandsList += separator + command.getCommand() + ':' + command.getValue();
     });
 
-    client.notice(from, commandsList);
+    network.getClient().notice(from, commandsList);
 };
 
 adminCommands.prototype.restrict = function (client, command, params, from) {
@@ -68,17 +70,17 @@ adminCommands.prototype.restrict = function (client, command, params, from) {
     }
 };
 
-adminCommands.prototype.unrestrict = function (client, command, params, from) {
+adminCommands.prototype.unrestrict = function (network, command, params, from) {
     auth.unrestrictCommand(client, params)
         .then(function (res) {
-            client.notice(from, res.message);
+            network.getClient().notice(from, res.message);
         }, function (res) {
-            client.notice(from, res.message);
+            network.getClient().notice(from, res.message);
         });
 };
 
-adminCommands.prototype.listUsers = function (client, command, params, from) {
-    var users = auth.getAllUsers(client._name),
+adminCommands.prototype.listUsers = function (network, command, params, from) {
+    var users = network.getAllUsers(client._name),
         usersList = '';
     if (users.length > 0) {
         _.forEach(users, function (user, index) {
@@ -87,27 +89,27 @@ adminCommands.prototype.listUsers = function (client, command, params, from) {
     } else {
         usersList = 'There are currently no users in the system';
     }
-    client.notice(from, usersList);
+    network.getClient().notice(from, usersList);
 };
 
-adminCommands.prototype.addUser = function (client, command, params, from) {
+adminCommands.prototype.addUser = function (network, command, params, from) {
     var args = params.split(' '),
         optionSets = _.rest(params, 1);
-    auth.getAccountName(client, args[0]).then(function (res) {
-        auth.createUser(client, res.account, args[1])
+    network.auth.getAccountName(args[0]).then(function (res) {
+        network.auth.createUser(res.account, args[1])
             .then(function (res) {
                 if (typeof res === "object") {
-                    client.notice(from, res.message);
+                    network.getClient().notice(from, res.message);
                 } else {
                     throw new Error('res is not an object');
                 }
             });
     }, function (res) {
-        client.notice(from, res.message);
+        network.getClient().notice(from, res.message);
     });
 };
 
-adminCommands.prototype.updateUser = function (client, command, params, from, to) {
+adminCommands.prototype.updateUser = function (network, command, params, from, to) {
     var args = params.split(' '),
         optionsSet = _.rest(args, 1),
         keys = _.groupBy(optionsSet, function (num, index) {
@@ -115,54 +117,53 @@ adminCommands.prototype.updateUser = function (client, command, params, from, to
             return index % 2;
         });
     keys = _.object(keys[1], keys[0]);
-    auth.updateUser(_.first(args), keys)
+    network.auth.updateUser(_.first(args), keys)
         .then(function (res) {
             if (typeof res === "object") {
-                client.notice(from, res.message);
+                network.getClient().notice(from, res.message);
             } else {
                 throw new Error('res is not an object');
             }
         }, function (res) {
             if (typeof res === "object") {
-                client.notice(from, res.message);
+                network.getClient().notice(from, res.message);
             } else {
                 throw new Error('res is not an object');
             }
         });
 };
 
-adminCommands.prototype.deleteUser = function (client, command, params, from, to) {
-    auth.deleteUser(params)
+adminCommands.prototype.deleteUser = function (network, command, params, from, to) {
+    network.deleteUser(params)
         .then(function (res) {
             if (typeof res === "object") {
-                client.notice(from, res.message);
+                network.getClient().notice(from, res.message);
             } else {
                 throw new Error('res is not an object');
             }
         }, function (res) {
-            client.notice(from, res.message);
+            network.getClient().notice(from, res.message);
         });
 };
 
-adminCommands.prototype.listGroups = function (client, command, params, from) {
-    var groups = auth.getAllGroups(),
-        groupsList = '';
-    if (groups.length > 0) {
-        _.forEach(groups, function (group, index) {
+adminCommands.prototype.listGroups = function (network, command, params, from) {
+    var groupsList = '';
+    if (network.getAllGroups().length > 0) {
+        _.forEach(network.getAllGroups(), function (group, index) {
             groupsList += (index > 0 ? ', ' + group.getName() : group.getName());
         });
     } else {
-        groupsList = 'There are currently no users in the system';
+        groupsList = 'There are currently no groups in the system';
     }
-    client.notice(from, groupsList);
+    network.getClient().notice(from, groupsList);
 };
 
-adminCommands.prototype.addGroup = function (client, command, params, from, to) {
+adminCommands.prototype.addGroup = function (network, command, params, from, to) {
     var args = params.split(' ');
-    auth.createGroup(args[0], args[1])
+    network.auth.createGroup(args[0], args[1])
         .then(function (res) {
             if (typeof res === "object") {
-                client.notice(from, res.message);
+                network.getClient().notice(from, res.message);
             } else {
                 throw new Error('res is not an object');
             }
